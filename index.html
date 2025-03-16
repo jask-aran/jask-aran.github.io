@@ -37,15 +37,38 @@
             fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/contents")
                 .then(response => response.json())
                 .then(data => {
-                    const list = document.getElementById("md-links");
                     data.forEach(file => {
                         if (file.name.endsWith(".md")) {
-                            let li = document.createElement("li");
-                            let a = document.createElement("a");
-                            a.href = file.name;
-                            a.textContent = file.name;
-                            li.appendChild(a);
-                            list.appendChild(li);
+                            fetch(file.download_url) // Fetch the markdown content
+                                .then(response => response.text())
+                                .then(content => {
+                                    let category = "Uncategorized"; // Default category
+
+                                    // Check for YAML front matter category marker
+                                    const match = content.match(/---[\s\S]*?category:\s*(.+?)[\s\S]*?---/i);
+                                    if (match) {
+                                        category = match[1].trim();
+                                    }
+
+                                    // Find or create category section
+                                    let section = document.getElementById(category);
+                                    if (!section) {
+                                        section = document.createElement("ul");
+                                        section.id = category;
+                                        let heading = document.createElement("h2");
+                                        heading.textContent = category;
+                                        document.body.appendChild(heading);
+                                        document.body.appendChild(section);
+                                    }
+
+                                    // Add link to the category section
+                                    let li = document.createElement("li");
+                                    let a = document.createElement("a");
+                                    a.href = file.name;
+                                    a.textContent = file.name.replace(".md", "");
+                                    li.appendChild(a);
+                                    section.appendChild(li);
+                                });
                         }
                     });
                 })
@@ -56,10 +79,17 @@
 <body>
     <h1>My Writing Portfolio</h1>
     <p>Welcome to my collection of writings. Click on any title to read.</p>
-    
+
     <h2>Articles</h2>
-    <ul id="md-links">
-        <li><a href="README.md">README.md</a></li>
-    </ul>
+    <ul id="Articles"></ul>
+
+    <h2>Essays</h2>
+    <ul id="Essays"></ul>
+
+    <h2>Poetry</h2>
+    <ul id="Poetry"></ul>
+
+    <h2>Uncategorized</h2>
+    <ul id="Uncategorized"></ul>
 </body>
 </html>
