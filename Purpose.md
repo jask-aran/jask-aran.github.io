@@ -1,5 +1,3 @@
----
-category: Musing
----
+<!-- category: Articles -->
 
 test
