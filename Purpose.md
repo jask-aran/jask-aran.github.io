@@ -1,1 +1,5 @@
+---
+category: Musing
+---
+
 test
