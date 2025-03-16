@@ -33,63 +33,61 @@
         }
     </style>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/contents")
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(file => {
-                        if (file.name.endsWith(".md")) {
-                            fetch(file.download_url) // Fetch the markdown content
-                                .then(response => response.text())
-                                .then(content => {
-                                    let category = "Uncategorized"; // Default category
+        document.addEventListener("DOMContentLoaded", async function() {
+            const repoOwner = "YOUR_GITHUB_USERNAME"; // Change this
+            const repoName = "YOUR_REPO_NAME"; // Change this
+            const repoUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`;
 
-                                    // Check for YAML front matter category marker
-                                    const match = content.match(/---[\s\S]*?category:\s*(.+?)[\s\S]*?---/i);
-                                    if (match) {
-                                        category = match[1].trim();
-                                    }
+            try {
+                const response = await fetch(repoUrl);
+                const files = await response.json();
 
-                                    // Find or create category section
-                                    let section = document.getElementById(category);
-                                    if (!section) {
-                                        section = document.createElement("ul");
-                                        section.id = category;
-                                        let heading = document.createElement("h2");
-                                        heading.textContent = category;
-                                        document.body.appendChild(heading);
-                                        document.body.appendChild(section);
-                                    }
+                const categories = {};
 
-                                    // Add link to the category section
-                                    let li = document.createElement("li");
-                                    let a = document.createElement("a");
-                                    a.href = file.name;
-                                    a.textContent = file.name.replace(".md", "");
-                                    li.appendChild(a);
-                                    section.appendChild(li);
-                                });
+                for (const file of files) {
+                    if (file.name.endsWith(".md")) {
+                        const fileContentResponse = await fetch(file.download_url);
+                        const content = await fileContentResponse.text();
+
+                        // Default category
+                        let category = "Uncategorized";
+
+                        // Extract category from YAML front matter
+                        const match = content.match(/---[\s\S]*?category:\s*(.+?)[\s\S]*?---/i);
+                        if (match) {
+                            category = match[1].trim();
                         }
-                    });
-                })
-                .catch(error => console.error("Error fetching files:", error));
+
+                        // Create category if it doesn't exist
+                        if (!categories[category]) {
+                            categories[category] = [];
+                        }
+
+                        // Add the file link to the appropriate category
+                        categories[category].push(`<li><a href="${file.name}">${file.name.replace(".md", "")}</a></li>`);
+                    }
+                }
+
+                // Insert categories dynamically
+                const body = document.body;
+                for (const [category, links] of Object.entries(categories)) {
+                    let heading = document.createElement("h2");
+                    heading.textContent = category;
+                    body.appendChild(heading);
+
+                    let ul = document.createElement("ul");
+                    ul.innerHTML = links.join("");
+                    body.appendChild(ul);
+                }
+
+            } catch (error) {
+                console.error("Error fetching files:", error);
+            }
         });
     </script>
 </head>
 <body>
     <h1>My Writing Portfolio</h1>
     <p>Welcome to my collection of writings. Click on any title to read.</p>
-
-    <h2>Articles</h2>
-    <ul id="Articles"></ul>
-
-    <h2>Essays</h2>
-    <ul id="Essays"></ul>
-
-    <h2>Poetry</h2>
-    <ul id="Poetry"></ul>
-
-    <h2>Uncategorized</h2>
-    <ul id="Uncategorized"></ul>
 </body>
 </html>
