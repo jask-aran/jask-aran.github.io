@@ -11,6 +11,8 @@
             margin: auto;
             padding: 20px;
             line-height: 1.6;
+            background-color: #121212;
+            color: #ffffff;
         }
         h1, h2 {
             text-align: center;
@@ -24,34 +26,40 @@
         }
         a {
             text-decoration: none;
-            color: #007bff;
+            color: #00bfff;
         }
         a:hover {
             text-decoration: underline;
         }
     </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch("https://api.github.com/repos/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/contents")
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById("md-links");
+                    data.forEach(file => {
+                        if (file.name.endsWith(".md")) {
+                            let li = document.createElement("li");
+                            let a = document.createElement("a");
+                            a.href = file.name;
+                            a.textContent = file.name;
+                            li.appendChild(a);
+                            list.appendChild(li);
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching files:", error));
+        });
+    </script>
 </head>
 <body>
     <h1>My Writing Portfolio</h1>
     <p>Welcome to my collection of writings. Click on any title to read.</p>
     
     <h2>Articles</h2>
-    <ul>
-        <li><a href="README.md">Readme</a></li>
-        <li><a href="article2.md">How to Structure a Novel</a></li>
-        <li><a href="article3.md">The Art of Short Stories</a></li>
-    </ul>
-    
-    <h2>Essays</h2>
-    <ul>
-        <li><a href="essay1.md">Philosophy of Storytelling</a></li>
-        <li><a href="essay2.md">The Role of Fiction in Society</a></li>
-    </ul>
-    
-    <h2>Poetry</h2>
-    <ul>
-        <li><a href="poem1.md">A Walk Through Time</a></li>
-        <li><a href="poem2.md">Echoes of the Mind</a></li>
+    <ul id="md-links">
+        <li><a href="README.md">README.md</a></li>
     </ul>
 </body>
 </html>
