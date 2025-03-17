@@ -34,8 +34,8 @@
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", async function() {
-            const repoOwner = "jask-aran"; // Change this
-            const repoName = "jask-aran.github.io"; // Change this
+            const repoOwner = "jask-aran"; // Update with your GitHub username
+            const repoName = "jask-aran.github.io"; // Update with your repository name
             const repoUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents`;
 
             try {
@@ -52,8 +52,8 @@
                         // Default category
                         let category = "Uncategorized";
 
-                        // Extract category from YAML front matter
-                        const match = content.match(/---[\s\S]*?category:\s*(.+?)[\s\S]*?---/i);
+                        // Extract category from invisible HTML comment signifier
+                        const match = content.match(/<!--\s*category:\s*(.+?)\s*-->/i);
                         if (match) {
                             category = match[1].trim();
                         }
